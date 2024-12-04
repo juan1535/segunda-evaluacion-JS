@@ -18,32 +18,34 @@ const cargarDatos = async () => {
         conseguirNotas()
     ]);
 
-    const personasPorCiudad = ciudades.map(ciudad => ({
-        ciudad: ciudad.nombre,
-        personas: personas.filter(persona => persona.ciudadId === ciudad.id)
-    }));
+    const ciudadesConUsuarios = ciudades.map(ciudad => {
 
-    const materiasPorPersona = personas.map(persona => ({
-        persona: persona.nombre,
-        materias: materiasPersonas.filter(mp => mp.usuarioId === persona.id).map(mp => materias.find(materia => materia.id === mp.materiaId))
-    }));
+        const usuariosEnCiudad = personas.filter(persona => persona.ciudadId === ciudad.id);
+        
+        const usuariosConMateriasNotas = usuariosEnCiudad.map(usuario => {
 
-    const promedioPorPersona = personas.map(persona => {
-        const notasDePersona = notas.filter(nota => nota.usuarioId === persona.id);
-        const promedio = notasDePersona.reduce((suma, nota) => suma + nota.valor, 0) / (notasDePersona.length || 1);
-        return { persona: persona.nombre, promedio };
+            const materiasDelUsuario = materiasPersonas
+                .filter(mp => mp.usuarioId === usuario.id)
+                .map(mp => materias.find(materia => materia.id === mp.materiaId));
+            
+            const notasDelUsuario = notas.filter(nota => nota.usuarioId === usuario.id).map(nota => nota.valor);
+            
+            return {
+                ...usuario,
+                materias: materiasDelUsuario,
+                notas: notasDelUsuario
+            };
+        });
+
+        return {
+            ...ciudad,
+            usuarios: usuariosConMateriasNotas
+        };
     });
 
-    const personasConMaterias = personas.filter(persona => 
-        materiasPersonas.some(mp => mp.usuarioId === persona.id)
-    );
-
-    console.log(personasPorCiudad);
-    console.log(materiasPorPersona);
-    console.log(promedioPorPersona);
-    console.log(personasConMaterias);
+    console.log(ciudadesConUsuarios);
 }
 
-cargarDatos().then((resultado) => {
-    console.log(resultado);
+cargarDatos().then((a) => {
+    console.log(a);
 });
